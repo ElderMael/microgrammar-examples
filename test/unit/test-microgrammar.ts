@@ -10,9 +10,9 @@ import test from 'ava'
 test('should match literal text within a string', (t) => {
   // given
   const mg = microgrammar<{
-    name: string
+    name: string // Defines the term and the type
   }>({
-    name: 'Miguel',
+    name: 'Miguel', // Defines the term intself, in this case a literal text
   })
   const input = `
   Hi, my name is Miguel
@@ -22,11 +22,12 @@ test('should match literal text within a string', (t) => {
   const match = mg.firstMatch(input);
 
   // then
-  if (!match) {
+  if (!match) { // Match right now is the Union type of ( (PatternMatch & {name: string}) | null )
     t.fail('No match found.');
     return
   }
 
+  // match type is the Intersection Type of PatternMatch & the Terms type
   t.is(match.name, 'Miguel')
 
 });
@@ -36,7 +37,7 @@ test('should match a regex as a term', (t) => {
   const mg = microgrammar<{
     imageVersion: string
   }>({
-    imageVersion: /\d+.\d+.\d+/,
+    imageVersion: /\d+.\d+.\d+/, // Terms can be RegExes
   });
   const input = `
   FROM nginx:1.23.0 as BUILD
@@ -65,9 +66,9 @@ test('should match terms using composition', (t) => {
     patch: string
   }>({
     mayor: /\d+/,
-    _mayorSeparator: '.',
+    _mayorSeparator: '.', // Excluded terms start with an underscore
     minor: /\d+/,
-    _minorSeparator: '.',
+    _minorSeparator: '.', // Terms should not repeat, the reason for naming excluded terms
     patch: /\d+/,
   });
   const input = `
@@ -92,14 +93,14 @@ test('should match terms using composition', (t) => {
 
 test('should match terms using composition and matchers', (t) => {
   // given
-  const dot = new Literal('.');
+  const dot = new Literal('.'); // Reusable matcher
   const mg = microgrammar<{
     mayor: number
     minor: number
     patch: number
   }>({
-    mayor: Integer,
-    _mayorSeparator: dot,
+    mayor: Integer, // Provided matcher for Integers
+    _mayorSeparator: dot, // Use the matcher previously defined multiple times
     minor: Integer,
     _minorSeparator: dot,
     patch: Integer,
@@ -119,6 +120,7 @@ test('should match terms using composition and matchers', (t) => {
     return
   }
 
+  // Note that the matcher also gives type conversion, these were strings before
   t.is(match.mayor, 1)
   t.is(match.minor, 23)
   t.is(match.patch, 0)
@@ -144,6 +146,7 @@ test('should match terms using composition and matchers and other microgrammars'
   }>({
     imageName: /[a-zA-Z\d]+/,
     semicolon: ':',
+    // Composition of many terms based on microgrammars, regexes or literals
     imageVersion: firstOf(semanticVersionImageTag, /[a-zA-Z][a-zA-Z\d]+/, 'latest'),
   });
   const input = `
@@ -194,7 +197,7 @@ test('should match with terms having multiple instances', (t) => {
   }>({
     name: /[A-Za-z]/,
     _colon: ':',
-    value: RestOfLine,
+    value: RestOfLine, // Matches everything until a EOL
   });
 
   const mg = microgrammar<{
@@ -202,7 +205,7 @@ test('should match with terms having multiple instances', (t) => {
   }>({
     entries: zeroOrMore(nameAndValue),
   });
-  
+
   // when
   const match = mg.firstMatch(`
   a: ten
@@ -216,6 +219,7 @@ test('should match with terms having multiple instances', (t) => {
     return;
   }
 
+  // Type safety of inlined microgrammars
   t.deepEqual(match.entries, [
     {
       name: 'a',
