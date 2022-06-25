@@ -12,7 +12,7 @@ test('should match literal text within a string', (t) => {
   const mg = microgrammar<{
     name: string // Defines the term and the type
   }>({
-    name: 'Miguel', // Defines the term intself, in this case a literal text
+    name: 'Miguel', // Defines the term itself, in this case a literal text
   })
   const input = `
   Hi, my name is Miguel
