@@ -19,7 +19,6 @@ test('should match literal text within a string', (t) => {
   `;
 
   // when
-
   const match = mg.firstMatch(input);
 
   // then
@@ -203,6 +202,7 @@ test('should match with terms having multiple instances', (t) => {
   }>({
     entries: zeroOrMore(nameAndValue),
   });
+  
   // when
   const match = mg.firstMatch(`
   a: ten
