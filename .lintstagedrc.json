@@ -1,0 +1,9 @@
+{
+  "*.json": [
+    "eslint --fix"
+  ],
+  "*.ts(x)?": [
+    "prettier --write",
+    "eslint --fix"
+  ]
+}
